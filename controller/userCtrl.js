@@ -7,7 +7,15 @@ const jwt = require("jsonwebtoken");
 //Create a new user
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
+
+  console.log("body", req.body);
+
+  console.log("User model", User);
+
   const findUser = await User.findOne({ email: email });
+
+  console.log("findUser", findUser);
+
   if (!findUser) {
     //Create new user
     const newUser = await User.create(req.body);
@@ -23,7 +31,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   //Check if user exists or not
   const findUser = await User.findOne({ email });
-  if (!findUser && (await findUser.isPasswordMatched(password))) {
+  if (findUser && (await findUser.isPasswordMatched(password))) {
     const refreshToken = await generateRefreshToken(findUser?.id);
     const updateuser = await User.findByIdAndUpdate(
       findUser.id,
