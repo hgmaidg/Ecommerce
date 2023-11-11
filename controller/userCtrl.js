@@ -4,6 +4,8 @@ const { generateToken } = require("../config/jwtToken");
 const validateMongodbId = require("../utils/validateMongodbId");
 const { generateRefreshToken } = require("../config/refreshtoken");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const sendEmail = require("../controller/emailCtrl");
 //Create a new user
 const createUser = asyncHandler(async (req, res) => {
   const email = req.body.email;
@@ -23,6 +25,45 @@ const createUser = asyncHandler(async (req, res) => {
   } else {
     //User already exists
     throw new Error("User already exists");
+  }
+});
+
+//Update a user
+
+const updateaUser = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  validateMongodbId(_id);
+  try {
+    const updateaUser = await User.findByIdAndUpdate(
+      _id,
+      {
+        firtsname: req?.body?.firtsname,
+        lastname: req?.body?.lastname,
+        email: req?.body?.email,
+        mobile: req?.body?.mobile,
+      },
+      { new: true }
+    );
+    res.json({
+      updateaUser,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+//Delete a single user
+
+const deleteaUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongodbId(id);
+  try {
+    const deleteaUser = await User.findByIdAndDelete(id);
+    res.json({
+      deleteaUser,
+    });
+  } catch (error) {
+    throw new Error(error);
   }
 });
 
@@ -109,30 +150,6 @@ const logout = asyncHandler(async (req, res) => {
   res.sendStatus(204);
 });
 
-//Update a user
-
-const updateaUser = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  validateMongodbId(_id);
-  try {
-    const updateaUser = await User.findByIdAndUpdate(
-      _id,
-      {
-        firtsname: req?.body?.firtsname,
-        lastname: req?.body?.lastname,
-        email: req?.body?.email,
-        mobile: req?.body?.mobile,
-      },
-      { new: true }
-    );
-    res.json({
-      updateaUser,
-    });
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
 //Get a single user
 
 const getaUser = asyncHandler(async (req, res) => {
@@ -142,21 +159,6 @@ const getaUser = asyncHandler(async (req, res) => {
     const getaUser = await User.findById(id);
     res.json({
       getaUser,
-    });
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-//Delete a single user
-
-const deleteaUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  validateMongodbId(id);
-  try {
-    const deleteaUser = await User.findByIdAndDelete(id);
-    res.json({
-      deleteaUser,
     });
   } catch (error) {
     throw new Error(error);
@@ -200,6 +202,63 @@ const unblockUser = asyncHandler(async (req, res) => {
   }
 });
 
+const updatePassword = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { password } = req.body;
+  validateMongodbId(_id);
+  const user = await User.findById(_id);
+  if (password) {
+    user.password = password;
+    const updatePassword = await user.save();
+    res.json(updatePassword);
+  } else {
+    res.json(user);
+  }
+});
+//Chua gui duoc email
+const forgotPasswordToken = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("User not found with this email");
+  try {
+    const token = await user.createPasswordResetToken();
+    await user.save();
+    const resetURL = `Hi, Please follow this link to reset Your Password. This link is valid till 10 minutes from now. <a href='http://localhost:5000/api/user/reset-password/${token}'>Click Here</>`;
+    const data = {
+      to: email,
+      text: "Hey User",
+      subject: "Forgot Password Link",
+      html: resetURL,
+    };
+
+    try {
+      sendEmail(data);
+      console.log("Email sent");
+    } catch (error) {
+      console.log(error.message);
+    }
+    res.json(token);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+  const { token } = req.params;
+  const hashToken = crypto.createHash("sha256").update(token).digest("hex");
+  const user = await User.findOne({
+    passwordResetToken: hashToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  if (!user) throw new Error("Token is invalid or has expired");
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+  res.json(user);
+});
+
 module.exports = {
   createUser,
   loginUserCtrl,
@@ -211,4 +270,7 @@ module.exports = {
   unblockUser,
   handleRefreshToken,
   logout,
+  updatePassword,
+  forgotPasswordToken,
+  resetPassword,
 };
