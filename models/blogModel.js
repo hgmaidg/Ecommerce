@@ -35,15 +35,11 @@ var blogSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    image: {
-      type: String,
-      default:
-        "https://web3.com.au/wp-content/uploads/2016/08/How-To-Write-Blog-Posts-that-Actually-Convert-Readers-into-Customers-featured-image.jpg",
-    },
     author: {
       type: String,
       default: "Admin",
     },
+    images: [],
   },
   {
     toJSON: {
