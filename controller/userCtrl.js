@@ -161,6 +161,28 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
   });
 });
 
+//Save user address
+
+const saveAddress = asyncHandler(async (req, res, next) => {
+  const { _id } = req.user;
+  validateMongodbId(_id);
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      _id,
+      {
+        address: req?.body?.address,
+      },
+      {
+        new: true,
+      }
+    );
+    res.json(updatedUser);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 //Handle logout functionality
 
 const logout = asyncHandler(async (req, res) => {
@@ -312,6 +334,7 @@ module.exports = {
   getaUser,
   deleteaUser,
   updateaUser,
+  saveAddress,
   blockUser,
   unblockUser,
   handleRefreshToken,
