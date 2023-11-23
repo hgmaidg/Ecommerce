@@ -13,6 +13,7 @@ const blogCatRouter = require("./routes/blogCatRoute");
 const brandRouter = require("./routes/brandRoute");
 const colorRouter = require("./routes/colorRoute");
 const couponRouter = require("./routes/couponRoute");
+const enqRouter = require("./routes/enqRoute");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 dbConnect();
@@ -30,6 +31,7 @@ app.use("/api/blogcategory", blogCatRouter);
 app.use("/api/brand", brandRouter);
 app.use("/api/color", colorRouter);
 app.use("/api/coupon", couponRouter);
+app.use("/api/enquiry", enqRouter);
 
 app.use(notFound);
 app.use(errorHandler);
