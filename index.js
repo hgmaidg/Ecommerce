@@ -15,9 +15,10 @@ const colorRouter = require("./routes/colorRoute");
 const couponRouter = require("./routes/couponRoute");
 const enqRouter = require("./routes/enqRoute");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const morgan = require("morgan");
 dbConnect();
-
+app.use(cors());
 app.use(morgan("dev")); //Lấy thông tin req status -> dev lấy ip
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
