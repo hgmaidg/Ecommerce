@@ -12,12 +12,11 @@ const uploadImages = asyncHandler(async (req, res) => {
     const files = req.files;
     for (const file of files) {
       const { path } = file;
-      const newPath = await uploader(path);
-
-      urls.push(newPath);
+      const newpath = await uploader(path);
+      console.log(newpath);
+      urls.push(newpath);
       fs.unlinkSync(path);
     }
-
     const images = urls.map((file) => {
       return file;
     });
@@ -26,12 +25,11 @@ const uploadImages = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
-
 const deleteImages = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
     const deleted = cloudinaryDeleteImg(id, "images");
-    res.json({ mesage: "Deleted" });
+    res.json({ message: "Deleted" });
   } catch (error) {
     throw new Error(error);
   }
