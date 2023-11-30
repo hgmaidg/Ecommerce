@@ -396,6 +396,100 @@ const getUserCart = asyncHandler(async (req, res) => {
   }
 });
 
+<<<<<<< Updated upstream
+=======
+const removeProductFromCart = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { cartItemId } = req.params;
+  validateMongoDbId(_id);
+  try {
+    const deleteProductFromCart = await Cart.deleteOne({
+      // productId: id,
+      // orderby: _id,
+      userId: _id,
+      _id: cartItemId,
+    });
+    res.json(deleteProductFromCart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// const updateProductQuantity = asyncHandler(async (req, res) => {
+//   const { _id } = req.user;
+//   const { cartItemId } = req.params;
+//   const { quantity } = req.body;
+//   validateMongoDbId(_id);
+//   try {
+//     const cartItem = await Cart.findByIdAndUpdate(
+//       cartItemId,
+//       {
+//         quantity,
+//       },
+//       {
+//         new: true,
+//       }
+//     );
+//     res.json(updateQuantity);
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// })
+const updateProductQuantityFromCart = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { cartItemId } = req.params;
+  const { newQuantity } = req.body;
+  validateMongoDbId(_id);
+  try {
+    const cartItem = await Cart.findByIdAndUpdate({
+      userId: _id,
+      _id: cartItemId,
+    });
+    cartItem.quantity = newQuantity;
+    cartItem.save();
+    res.json(cartItem);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const emptyCart = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  validateMongoDbId(_id);
+  try {
+    const user = await User.findOne({ _id });
+    const cart = await Cart.findOneAndRemove({ orderby: user._id });
+    res.json(cart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const applyCoupon = asyncHandler(async (req, res) => {
+  const { coupon } = req.body;
+  const { _id } = req.user;
+  validateMongoDbId(_id);
+  const validCoupon = await Coupon.findOne({ name: coupon });
+  if (validCoupon === null) {
+    throw new Error("Invalid Coupon");
+  }
+  const user = await User.findOne({ _id });
+  let { cartTotal } = await Cart.findOne({
+    orderby: user._id,
+  }).populate("products.product");
+  let totalAfterDiscount = (
+    cartTotal -
+    (cartTotal * validCoupon.discount) / 100
+  ).toFixed(2);
+  await Cart.findOneAndUpdate(
+    { orderby: user._id },
+    { totalAfterDiscount },
+    { new: true }
+  );
+  res.json(totalAfterDiscount);
+});
+
+>>>>>>> Stashed changes
 const createOrder = asyncHandler(async (req, res) => {
   const {
     shippingInfo,
@@ -577,4 +671,13 @@ module.exports = {
   userCart,
   getUserCart,
   createOrder,
+<<<<<<< Updated upstream
+=======
+  getOrders,
+  updateOrderStatus,
+  getAllOrders,
+  getOrderByUserId,
+  removeProductFromCart,
+  updateProductQuantityFromCart,
+>>>>>>> Stashed changes
 };

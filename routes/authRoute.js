@@ -24,6 +24,8 @@ const {
   getOrders,
   updateOrderStatus,
   getAllOrders,
+  removeProductFromCart,
+  updateProductQuantityFromCart,
 } = require("../controller/userCtrl");
 const { paymentVerification, checkout } = require("../controller/paymentCtrl");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
@@ -51,7 +53,22 @@ router.get("/wishlist", authMiddleware, getWishlist);
 router.get("/cart", authMiddleware, getUserCart);
 
 router.get("/:id", authMiddleware, isAdmin, getaUser);
+<<<<<<< Updated upstream
 // router.delete("/empty-cart", authMiddleware, emptyCart);
+=======
+router.delete("/empty-cart", authMiddleware, emptyCart);
+router.delete(
+  "/delete-product-cart/:cartItemId",
+  authMiddleware,
+  removeProductFromCart
+);
+router.put(
+  "/update-product-cart/:cartItemId/newQuantity",
+  authMiddleware,
+  updateProductQuantityFromCart
+);
+
+>>>>>>> Stashed changes
 router.delete("/:id", deleteaUser);
 // router.put(
 //   "/order/update-order/:id",
