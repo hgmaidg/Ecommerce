@@ -396,8 +396,6 @@ const getUserCart = asyncHandler(async (req, res) => {
   }
 });
 
-<<<<<<< Updated upstream
-=======
 const removeProductFromCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const { cartItemId } = req.params;
@@ -489,7 +487,6 @@ const applyCoupon = asyncHandler(async (req, res) => {
   res.json(totalAfterDiscount);
 });
 
->>>>>>> Stashed changes
 const createOrder = asyncHandler(async (req, res) => {
   const {
     shippingInfo,
@@ -671,13 +668,7 @@ module.exports = {
   userCart,
   getUserCart,
   createOrder,
-<<<<<<< Updated upstream
-=======
-  getOrders,
-  updateOrderStatus,
-  getAllOrders,
-  getOrderByUserId,
   removeProductFromCart,
   updateProductQuantityFromCart,
->>>>>>> Stashed changes
+  emptyCart,
 };

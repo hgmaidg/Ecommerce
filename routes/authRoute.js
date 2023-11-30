@@ -53,9 +53,7 @@ router.get("/wishlist", authMiddleware, getWishlist);
 router.get("/cart", authMiddleware, getUserCart);
 
 router.get("/:id", authMiddleware, isAdmin, getaUser);
-<<<<<<< Updated upstream
 // router.delete("/empty-cart", authMiddleware, emptyCart);
-=======
 router.delete("/empty-cart", authMiddleware, emptyCart);
 router.delete(
   "/delete-product-cart/:cartItemId",
@@ -68,7 +66,6 @@ router.put(
   updateProductQuantityFromCart
 );
 
->>>>>>> Stashed changes
 router.delete("/:id", deleteaUser);
 // router.put(
 //   "/order/update-order/:id",
