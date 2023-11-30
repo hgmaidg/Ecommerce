@@ -433,18 +433,35 @@ const removeProductFromCart = asyncHandler(async (req, res) => {
 //     throw new Error(error);
 //   }
 // })
+// const updateProductQuantityFromCart = asyncHandler(async (req, res) => {
+//   const { _id } = req.user;
+//   const { cartItemId } = req.params;
+//   const { newQuantity } = req.body;
+//   validateMongoDbId(_id);
+//   try {
+//     const cartItem = await Cart.findByIdAndUpdate({
+//       userId: _id,
+//       _id: cartItemId,
+//     });
+//     cartItem.quantity = newQuantity;
+//     cartItem.save();
+//     res.json(cartItem);
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// });
 const updateProductQuantityFromCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const { cartItemId } = req.params;
-  const { newQuantity } = req.body;
+  const { newQuantity } = req.params;
+  console.log("Received Parameters:", cartItemId, newQuantity);
   validateMongoDbId(_id);
   try {
-    const cartItem = await Cart.findByIdAndUpdate({
-      userId: _id,
-      _id: cartItemId,
-    });
-    cartItem.quantity = newQuantity;
-    cartItem.save();
+    const cartItem = await Cart.findByIdAndUpdate(
+      cartItemId,
+      { quantity: newQuantity },
+      { new: true }
+    );
     res.json(cartItem);
   } catch (error) {
     throw new Error(error);
