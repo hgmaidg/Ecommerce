@@ -341,6 +341,7 @@ const userCart = asyncHandler(async (req, res) => {
   const { productId, color, quantity, price } = req.body;
   const { _id } = req.user;
   validateMongoDbId(_id);
+  console.log("Received request to add to cart:", req.body);
   try {
     // let products = [];
     // const user = await User.findById(_id);
@@ -379,6 +380,51 @@ const userCart = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+// const userCart = asyncHandler(async (req, res) => {
+//   const { productId, color, quantity, price } = req.body;
+//   const { _id } = req.user;
+//   validateMongoDbId(_id);
+//   console.log("Received request to add to cart:", req.body);
+//   try {
+//     // Check if the user already has products in the cart
+//     const existingCart = await Cart.findOne({ userId: _id });
+
+//     if (existingCart) {
+//       // If the user already has a cart, update the existing cart
+//       existingCart.products.push({
+//         productId,
+//         color,
+//         quantity,
+//         price,
+//       });
+
+//       // Update other properties of the cart if needed
+
+//       await existingCart.save();
+//       res.json(existingCart);
+//     } else {
+//       // If the user doesn't have a cart, create a new cart
+//       const newCart = await new Cart({
+//         userId: _id,
+//         products: [
+//           {
+//             productId,
+//             color,
+//             quantity,
+//             price,
+//           },
+//         ],
+//         // Add other properties of the cart if needed
+//       }).save();
+
+//       res.json(newCart);
+//     }
+
+//     console.log("Cart updated successfully");
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// });
 
 const getUserCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
