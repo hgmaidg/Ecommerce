@@ -338,7 +338,7 @@ const getWishlist = asyncHandler(async (req, res) => {
 });
 
 const userCart = asyncHandler(async (req, res) => {
-  const { productId, color, quantity, price, size } = req.body;
+  const { productId, color, size, quantity, price } = req.body;
   const { _id } = req.user;
   validateMongoDbId(_id);
   console.log("Received request to add to cart:", req.body);
@@ -436,6 +436,12 @@ const getUserCart = asyncHandler(async (req, res) => {
     // );
     const cart = await Cart.find({ userId: _id })
       .populate("productId")
+      .populate({
+        path: "productId",
+        populate: {
+          path: "size", // Assuming your Product model has a 'size' field referencing the 'Size' model
+        },
+      })
       .populate("color")
       .populate("size");
     res.json(cart);
