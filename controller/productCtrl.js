@@ -47,7 +47,10 @@ const getaProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   validateMongoDbId(id);
   try {
-    const findProduct = await Product.findById(id).populate("color");
+    const findProduct = await Product.findById(id)
+      .populate("color")
+      .populate("size");
+    console.log("Fetched Product with populated color:", findProduct);
     res.json(findProduct);
   } catch (error) {
     throw new Error(error);
@@ -63,7 +66,9 @@ const getAllProduct = asyncHandler(async (req, res) => {
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    let query = Product.find(JSON.parse(queryStr));
+    let query = Product.find(JSON.parse(queryStr))
+      .populate("color")
+      .populate("size");
 
     // Sorting
 

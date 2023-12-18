@@ -338,7 +338,7 @@ const getWishlist = asyncHandler(async (req, res) => {
 });
 
 const userCart = asyncHandler(async (req, res) => {
-  const { productId, color, quantity, price } = req.body;
+  const { productId, color, quantity, price, size } = req.body;
   const { _id } = req.user;
   validateMongoDbId(_id);
   console.log("Received request to add to cart:", req.body);
@@ -370,6 +370,7 @@ const userCart = asyncHandler(async (req, res) => {
       userId: _id,
       productId,
       color,
+      size,
       quantity,
       price,
     }).save();
@@ -435,7 +436,8 @@ const getUserCart = asyncHandler(async (req, res) => {
     // );
     const cart = await Cart.find({ userId: _id })
       .populate("productId")
-      .populate("color");
+      .populate("color")
+      .populate("size");
     res.json(cart);
   } catch (error) {
     throw new Error(error);
@@ -717,7 +719,8 @@ const getMyOrders = asyncHandler(async (req, res) => {
     const orders = await Order.find({ user: _id })
       .populate("user")
       .populate("orderItems.product")
-      .populate("orderItems.color");
+      .populate("orderItems.color")
+      .populate("orderItems.size");
     res.json(orders);
   } catch (error) {
     throw new Error(error);
