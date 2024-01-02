@@ -17,33 +17,33 @@ var orderSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-      address: {
-        type: String,
-        required: true,
-      },
       city: {
         type: String,
         required: true,
       },
-      state: {
+      phone: {
+        type: Number,
+        required: true,
+      },
+      address: {
         type: String,
         required: true,
       },
       other: {
         type: String,
+        default: "",
+      },
+    },
+    paymentInfo: {
+      razorpayPaymentId: {
+        type: String,
         required: true,
       },
-      pincode: {
-        type: Number,
+      razorpayOrderId: {
+        type: String,
         required: true,
       },
     },
-    // paymentInfo: {
-    //   vnpayPaymentId: {
-    //     type: String,
-    //     required: true,
-    //   },
-    // },
     orderItems: [
       {
         product: {
@@ -54,6 +54,11 @@ var orderSchema = new mongoose.Schema(
         color: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Color",
+          required: true,
+        },
+        size: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Size",
           required: true,
         },
         quantity: {

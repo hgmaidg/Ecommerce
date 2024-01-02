@@ -65,7 +65,7 @@ router.put(
   authMiddleware,
   updateProductQuantityFromCart
 );
-
+router.delete("/empty", authMiddleware, emptyCart);
 router.delete("/:id", deleteaUser);
 // router.put(
 //   "/order/update-order/:id",

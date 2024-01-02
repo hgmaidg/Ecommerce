@@ -526,9 +526,8 @@ const emptyCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   validateMongoDbId(_id);
   try {
-    const user = await User.findOne({ _id });
-    const cart = await Cart.findOneAndRemove({ orderby: user._id });
-    res.json(cart);
+    const deleteCart = await Cart.deleteMany({ userId: _id });
+    res.json(deleteCart);
   } catch (error) {
     throw new Error(error);
   }
@@ -562,18 +561,18 @@ const createOrder = asyncHandler(async (req, res) => {
   const {
     shippingInfo,
     orderItems,
-    paymentInfo,
     totalPrice,
     totalPriceAfterDiscount,
+    paymentInfo,
   } = req.body;
   const { _id } = req.user;
   try {
     const order = await Order.create({
       shippingInfo,
       orderItems,
-      paymentInfo,
       totalPrice,
       totalPriceAfterDiscount,
+      paymentInfo,
       user: _id,
     });
     res.json({ order, success: true });
@@ -727,7 +726,7 @@ const getMyOrders = asyncHandler(async (req, res) => {
       .populate("orderItems.product")
       .populate("orderItems.color")
       .populate("orderItems.size");
-    res.json(orders);
+    res.json({ orders });
   } catch (error) {
     throw new Error(error);
   }
