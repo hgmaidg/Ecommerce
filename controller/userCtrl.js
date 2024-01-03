@@ -676,27 +676,29 @@ const createOrder = asyncHandler(async (req, res) => {
 const getAllOrders = asyncHandler(async (req, res) => {
   try {
     const alluserorders = await Order.find()
-      // .populate("products.product")
-      // .populate("orderby")
+      .populate("orderItems.product")
+      .populate("orderItems.color")
       .exec();
     res.json(alluserorders);
   } catch (error) {
     throw new Error(error);
   }
 });
-// const getOrderByUserId = asyncHandler(async (req, res) => {
-//   const { id } = req.params;
-//   validateMongoDbId(id);
-//   try {
-//     const userorders = await Order.findOne({ orderby: id })
-//       .populate("products.product")
-//       .populate("orderby")
-//       .exec();
-//     res.json(userorders);
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// });
+const getOrderByUserId = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    const userorders = await Order.findOne({ user: id })
+      // .populate("products.product")
+      // .populate("user")
+      .populate("orderItems.product")
+      .populate("orderItems.color")
+      .exec();
+    res.json(userorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 // const updateOrderStatus = asyncHandler(async (req, res) => {
 //   const { status } = req.body;
 //   const { id } = req.params;
@@ -725,7 +727,8 @@ const getMyOrders = asyncHandler(async (req, res) => {
       .populate("user")
       .populate("orderItems.product")
       .populate("orderItems.color")
-      .populate("orderItems.size");
+      .populate("orderItems.size")
+      .exec();
     res.json({ orders });
   } catch (error) {
     throw new Error(error);
@@ -757,4 +760,5 @@ module.exports = {
   emptyCart,
   getMyOrders,
   getAllOrders,
+  getOrderByUserId,
 };
