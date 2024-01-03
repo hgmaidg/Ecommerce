@@ -205,11 +205,11 @@ const getallUser = asyncHandler(async (req, res) => {
 // Get a single user
 
 const getaUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  validateMongoDbId(id);
+  const { _id } = req.params;
+  validateMongoDbId(_id);
 
   try {
-    const getaUser = await User.findById(id);
+    const getaUser = await User.findById(_id);
     res.json({
       getaUser,
     });
@@ -673,17 +673,17 @@ const createOrder = asyncHandler(async (req, res) => {
 //   }
 // });
 
-// const getAllOrders = asyncHandler(async (req, res) => {
-//   try {
-//     const alluserorders = await Order.find()
-//       .populate("products.product")
-//       .populate("orderby")
-//       .exec();
-//     res.json(alluserorders);
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// });
+const getAllOrders = asyncHandler(async (req, res) => {
+  try {
+    const alluserorders = await Order.find()
+      // .populate("products.product")
+      // .populate("orderby")
+      .exec();
+    res.json(alluserorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 // const getOrderByUserId = asyncHandler(async (req, res) => {
 //   const { id } = req.params;
 //   validateMongoDbId(id);
@@ -756,4 +756,5 @@ module.exports = {
   updateProductQuantityFromCart,
   emptyCart,
   getMyOrders,
+  getAllOrders,
 };
