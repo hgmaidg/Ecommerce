@@ -28,7 +28,13 @@ const {
   updateProductQuantityFromCart,
   getOrderByUserId,
 } = require("../controller/userCtrl");
-const { paymentVerification, checkout } = require("../controller/paymentCtrl");
+const {
+  paymentVerification,
+  checkout,
+  vnpayPayment,
+  getVnpayIpn,
+  vnpayReturn,
+} = require("../controller/paymentCtrl");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 const router = express.Router();
 router.post("/register", createUser);
@@ -54,7 +60,6 @@ router.get("/wishlist", authMiddleware, getWishlist);
 router.get("/cart", authMiddleware, getUserCart);
 
 router.get("/:id", authMiddleware, isAdmin, getaUser);
-// router.delete("/empty-cart", authMiddleware, emptyCart);
 router.delete("/empty-cart", authMiddleware, emptyCart);
 router.delete(
   "/delete-product-cart/:cartItemId",
@@ -78,5 +83,10 @@ router.put("/edit-user", authMiddleware, updatedUser);
 router.put("/save-address", authMiddleware, saveAddress);
 router.put("/block-user/:id", authMiddleware, isAdmin, blockUser);
 router.put("/unblock-user/:id", authMiddleware, isAdmin, unblockUser);
+
+router.post("/create_payment_url", vnpayPayment);
+// router.post("/create_payment_url", (req, res) => res.json({ success: true }));
+router.get("/vnpay_ipn", getVnpayIpn);
+router.get("/vnpay_return", vnpayReturn);
 
 module.exports = router;
