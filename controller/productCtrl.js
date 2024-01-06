@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const validateMongoDbId = require("../utils/validateMongodbId");
+const mongoose = require("mongoose");
 
 const createProduct = asyncHandler(async (req, res) => {
   try {
@@ -54,6 +55,26 @@ const getaProduct = asyncHandler(async (req, res) => {
     res.json(findProduct);
   } catch (error) {
     throw new Error(error);
+  }
+});
+
+const getAProductByBrand = asyncHandler(async (req, res) => {
+  const { brandName } = req.params;
+
+  // Kiểm tra nếu brandName không phải là một ObjectId hợp lệ
+  if (!mongoose.Types.ObjectId.isValid(brandName)) {
+    try {
+      const findProduct = await Product.find({ brand: brandName });
+      res.json(findProduct);
+    } catch (error) {
+      throw new Error(error);
+    }
+  } else {
+    // Nếu brandName là một ObjectId hợp lệ, trả về lỗi
+    return res.status(400).json({
+      status: "fail",
+      message: "Invalid brand name",
+    });
   }
 });
 
@@ -202,4 +223,5 @@ module.exports = {
   deleteProduct,
   addToWishlist,
   rating,
+  getAProductByBrand,
 };
