@@ -546,28 +546,94 @@ const emptyCart = asyncHandler(async (req, res) => {
   }
 });
 
+// const applyCoupon = asyncHandler(async (req, res) => {
+//   const { coupon } = req.body;
+//   const { _id } = req.user;
+//   validateMongoDbId(_id);
+//   const validCoupon = await Coupon.findOne({ name: coupon });
+//   if (validCoupon === null) {
+//     throw new Error("Invalid Coupon");
+//   }
+//   const user = await User.findOne({ _id });
+//   let { cartTotal } = await Cart.findOne({
+//     orderby: user._id,
+//   }).populate("products.product");
+//   let totalAfterDiscount = (
+//     cartTotal -
+//     (cartTotal * validCoupon.discount) / 100
+//   ).toFixed(2);
+//   await Cart.findOneAndUpdate(
+//     { orderby: user._id },
+//     { totalAfterDiscount },
+//     { new: true }
+//   );
+//   res.json(totalAfterDiscount);
+// });
+
 const applyCoupon = asyncHandler(async (req, res) => {
-  const { coupon } = req.body;
-  const { _id } = req.user;
-  validateMongoDbId(_id);
-  const validCoupon = await Coupon.findOne({ name: coupon });
-  if (validCoupon === null) {
-    throw new Error("Invalid Coupon");
+  try {
+    const { orderId } = req.params;
+    const { couponCode } = req.body;
+    // Find the order by ID
+    const order = await Order.findById(orderId);
+
+    // Check if the order exists
+    if (!order) {
+      return { success: false, message: "Order not found" };
+    }
+
+    // Find the coupon by code
+    const coupon = await Coupon.findOne({ name: couponCode.toUpperCase() });
+
+    // Check if the coupon exists and is active
+    if (!coupon || !coupon.active) {
+      return { success: false, message: "Invalid or inactive coupon code" };
+    }
+
+    // Check if the coupon is expired
+    const currentDate = new Date();
+    if (coupon.expiry < currentDate) {
+      return { success: false, message: "Coupon has expired" };
+    }
+
+    // Check if the order meets the minimum bill requirement
+    if (order.totalPrice < coupon.minBillToApply) {
+      return {
+        success: false,
+        message: `Minimum bill requirement not met to apply the coupon. Required: ${coupon.minBillToApply}`,
+      };
+    }
+
+    // Check if the coupon usage limit is reached
+    if (coupon.usedTurn >= coupon.limitTurn) {
+      return { success: false, message: "Coupon usage limit reached" };
+    }
+
+    // Calculate discount and update order details
+    const discountAmount = (order.totalPrice * coupon.discount) / 100;
+    order.totalDiscount += discountAmount;
+    order.totalPriceAfterDiscount = order.totalPrice - order.totalDiscount;
+
+    // Increment coupon usage
+    coupon.usedTurn += 1;
+
+    // Save changes to the database
+    await order.save();
+    await coupon.save();
+
+    return {
+      success: true,
+      message: "Coupon applied successfully",
+      discountAmount,
+      order: order.toObject(),
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "An error occurred while applying the coupon",
+    };
   }
-  const user = await User.findOne({ _id });
-  let { cartTotal } = await Cart.findOne({
-    orderby: user._id,
-  }).populate("products.product");
-  let totalAfterDiscount = (
-    cartTotal -
-    (cartTotal * validCoupon.discount) / 100
-  ).toFixed(2);
-  await Cart.findOneAndUpdate(
-    { orderby: user._id },
-    { totalAfterDiscount },
-    { new: true }
-  );
-  res.json(totalAfterDiscount);
 });
 
 const createOrder = asyncHandler(async (req, res) => {
@@ -712,6 +778,22 @@ const getOrderByUserId = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+const getSingleOrder = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  validateMongoDbId(id);
+  try {
+    const singleorder = await Order.findOne({ _id: id })
+      .populate("orderItems.product")
+      .populate("orderItems.color")
+      .populate("orderItems.size");
+    //   .exec();
+    res.json(singleorder);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 // const updateOrderStatus = asyncHandler(async (req, res) => {
 //   const { status } = req.body;
 //   const { id } = req.params;
@@ -748,6 +830,148 @@ const getMyOrders = asyncHandler(async (req, res) => {
   }
 });
 
+const getMonthWiseOrderIncome = asyncHandler(async (req, res) => {
+  let monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  let d = new Date();
+  let endDate = "";
+  d.setDate(1);
+  for (let index = 0; index < 11; index++) {
+    d.setMonth(d.getMonth() - 1);
+    endDate = monthNames[d.getMonth()] + " " + d.getFullYear();
+  }
+  const data = await Order.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $lte: new Date(),
+          $gte: new Date(endDate),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          // month: "$month",
+          month: {
+            $month: "$createdAt",
+          },
+        },
+        amount: {
+          $sum: "$totalPriceAfterDiscount",
+        },
+      },
+    },
+  ]);
+  res.json(data);
+});
+
+const getMonthWiseOrderCount = asyncHandler(async (req, res) => {
+  let monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  let d = new Date();
+  let endDate = "";
+  d.setDate(1);
+  for (let index = 0; index < 11; index++) {
+    d.setMonth(d.getMonth() - 1);
+    endDate = monthNames[d.getMonth()] + " " + d.getFullYear();
+  }
+  const data = await Order.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $lte: new Date(),
+          $gte: new Date(endDate),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          // month: "$month",
+          month: {
+            $month: "$createdAt",
+          },
+        },
+        count: {
+          $sum: 1,
+        },
+      },
+    },
+  ]);
+  res.json(data);
+});
+
+const getYearlyTotalOrders = asyncHandler(async (req, res) => {
+  let monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  let d = new Date();
+  let endDate = "";
+  d.setDate(1);
+  for (let index = 0; index < 11; index++) {
+    d.setMonth(d.getMonth() - 1);
+    endDate = monthNames[d.getMonth()] + " " + d.getFullYear();
+  }
+  const data = await Order.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $lte: new Date(),
+          $gte: new Date(endDate),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        count: {
+          $sum: 1,
+        },
+        amount: {
+          $sum: "$totalPriceAfterDiscount",
+        },
+      },
+    },
+  ]);
+  res.json(data);
+});
+
 module.exports = {
   createUser,
   loginUserCtrl,
@@ -776,4 +1000,8 @@ module.exports = {
   getOrderByUserId,
   updateOrderStatus,
   applyCoupon,
+  getMonthWiseOrderIncome,
+  getMonthWiseOrderCount,
+  getYearlyTotalOrders,
+  getSingleOrder,
 };

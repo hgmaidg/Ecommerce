@@ -27,6 +27,10 @@ const {
   removeProductFromCart,
   updateProductQuantityFromCart,
   getOrderByUserId,
+  getMonthWiseOrderIncome,
+  getMonthWiseOrderCount,
+  getYearlyTotalOrders,
+  getSingleOrder,
 } = require("../controller/userCtrl");
 const {
   paymentVerification,
@@ -54,10 +58,15 @@ router.get("/all-users", getallUser);
 router.get("/getmyorders", authMiddleware, getMyOrders);
 router.get("/orders", authMiddleware, isAdmin, getAllOrders);
 router.get("/getorderbyuser/:id", getOrderByUserId);
+router.get("/getOrder/:id", getSingleOrder);
+
 router.get("/refresh", handleRefreshToken);
 router.get("/logout", logout);
 router.get("/wishlist", authMiddleware, getWishlist);
 router.get("/cart", authMiddleware, getUserCart);
+router.get("/getMonthWiseOrderIncome", authMiddleware, getMonthWiseOrderIncome);
+router.get("/getMonthWiseOrderCount", authMiddleware, getMonthWiseOrderCount);
+router.get("/getYearlyOrders", authMiddleware, getYearlyTotalOrders);
 
 router.get("/:id", authMiddleware, isAdmin, getaUser);
 router.delete("/empty-cart", authMiddleware, emptyCart);
