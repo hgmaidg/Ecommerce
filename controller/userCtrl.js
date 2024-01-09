@@ -146,6 +146,19 @@ const logout = asyncHandler(async (req, res) => {
 
 // Update a user
 
+const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    res.json(updatedOrder);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 const updatedUser = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   validateMongoDbId(_id);
@@ -761,5 +774,6 @@ module.exports = {
   getMyOrders,
   getAllOrders,
   getOrderByUserId,
+  updateOrderStatus,
   applyCoupon,
 };

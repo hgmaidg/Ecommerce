@@ -79,7 +79,7 @@ const vnpayPayment = async (req, res) => {
   // var vnpUrl = config.get("vnp_Url");
   var vnpUrl = vnp_Url;
   // var returnUrl = config.get("vnp_ReturnUrl");
-  var returnUrl = "http://localhost:3000/my-orders ";
+  var returnUrl = "http://localhost:3000/checkout-success";
 
   var orderId = req.body.orderId;
   var amount = req.body.amount;
