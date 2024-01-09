@@ -79,6 +79,10 @@ var orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    totalDiscount: {
+      type: Number,
+      default: 0,
+    },
     totalPriceAfterDiscount: {
       type: Number,
       required: true,

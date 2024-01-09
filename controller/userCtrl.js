@@ -761,4 +761,5 @@ module.exports = {
   getMyOrders,
   getAllOrders,
   getOrderByUserId,
+  applyCoupon,
 };

@@ -8,6 +8,10 @@ var couponSchema = new mongoose.Schema({
     unique: true,
     uppercase: true,
   },
+  description: {
+    type: String,
+    required: true,
+  },
   expiry: {
     type: Date,
     required: true,
@@ -15,6 +19,40 @@ var couponSchema = new mongoose.Schema({
   discount: {
     type: Number,
     required: true,
+  },
+  limit: {
+    type: Number,
+    required: true,
+  },
+  active: {
+    type: Boolean,
+    default: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  //giới hạn số lần sử dụng
+  limitTurn: {
+    type: Number,
+    default: 1,
+  },
+  //số lần mã khuyến mãi được sử dụng
+  usedTurn: {
+    type: Number,
+    default: 0,
+  },
+  minBillToApply: {
+    type: Number,
+    default: 0,
+  },
+  totalSalePrice: {
+    type: Number,
+    default: 0,
   },
 });
 
